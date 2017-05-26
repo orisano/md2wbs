@@ -9,14 +9,20 @@ class ExcelRenderer(mistune.Renderer):
         self._workbook = xlwt.Workbook()
         self._sheet = self._workbook.add_sheet("md2xls")
         self._prev_level = 0
+        self._current_id = [0] * 3
 
     def header(self, text, level, raw=None):
+        self._current_id[level - 1] += 1
+        for i in range(level, 3):
+            self._current_id[i] = 0
         self._writeln(level, text)
         self._prev_level = level
         return ""
 
     def list_item(self, text):
-        self._writeln(self._prev_level + 1, text)
+        self._current_id[2] += 1
+        self._write(self._prev_level + 1, text)
+        self._writeln(self._prev_level + 2, ".".join(map(str, self._current_id)))
         return ""
 
     def _write(self, x, body):
